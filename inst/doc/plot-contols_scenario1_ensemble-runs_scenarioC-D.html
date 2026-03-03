@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>DDESONN — Plot Controls — Scenario 1 — Ensemble Runs: Scenario C &amp; D</title>
+
+<script src="plot-contols_scenario1_ensemble-runs_scenarioC-D_files/header-attrs-2.30/header-attrs.js"></script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+
+
+
+
+
+<link rel="stylesheet" href="C:/Users/wfky1/AppData/Local/R/win-library/4.5/rmarkdown/rmarkdown/templates/html_vignette/resources/vignette.css" type="text/css" />
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">DDESONN — Plot Controls — Scenario 1 —
+Ensemble Runs: Scenario C &amp; D</h1>
+
+
+<div id="TOC">
+<ul>
+<li><a href="#plot-interface-scenario-1"
+id="toc-plot-interface-scenario-1">Plot Interface — Scenario 1</a></li>
+<li><a href="#plot-controls-scenario-1-ensemble-run-scenario-c"
+id="toc-plot-controls-scenario-1-ensemble-run-scenario-c">Plot Controls:
+Scenario 1 — Ensemble Run — Scenario C</a></li>
+<li><a href="#plot-controls-scenario-1-ensemble-runs-scenario-d"
+id="toc-plot-controls-scenario-1-ensemble-runs-scenario-d">Plot
+Controls: Scenario 1 — Ensemble Runs — Scenario D</a></li>
+</ul>
+</div>
+
+<div id="plot-interface-scenario-1" class="section level2">
+<h2>Plot Interface — Scenario 1</h2>
+<p>This vignette demonstrates the <strong>Scenario 1 plot configuration
+interface</strong> in DDESONN.</p>
+<hr />
+<div id="independent-call-sites-training_overrides"
+class="section level3">
+<h3>Independent Call Sites (<code>training_overrides</code>)</h3>
+<p>Scenario 1 configures plotting through <strong>three independent call
+sites</strong> inside <code>training_overrides</code>:</p>
+<ol style="list-style-type: decimal">
+<li><code>training_overrides$per_epoch_plots</code></li>
+<li><code>training_overrides$performance_relevance</code></li>
+<li><code>training_overrides$evaluate_predictions_report_plots</code></li>
+</ol>
+<p>Each plot category is defined and controlled separately.</p>
+<p>This represents the minimal-integration bridge interface, where plot
+configuration remains distributed across training components.</p>
+<hr />
+</div>
+<div id="related-interface" class="section level3">
+<h3>Related Interface</h3>
+<p>For the unified umbrella configuration approach (recommended),
+see:</p>
+<p><strong><code>plot-controls_scenario1-2_single-run_scenarioA.Rmd</code></strong></p>
+</div>
+</div>
+<div id="plot-controls-scenario-1-ensemble-run-scenario-c"
+class="section level2">
+<h2>Plot Controls: Scenario 1 — Ensemble Run — Scenario C</h2>
+</div>
+<div id="plot-controls-scenario-1-ensemble-runs-scenario-d"
+class="section level2">
+<h2>Plot Controls: Scenario 1 — Ensemble Runs — Scenario D</h2>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
