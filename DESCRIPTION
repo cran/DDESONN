@@ -2,7 +2,7 @@ Package: DDESONN
 Type: Package
 Title: A Deep Dynamic Experimental Self-Organizing Neural Network
         Framework
-Version: 7.1.9
+Version: 7.1.11
 Authors@R: c(person("Mathew William Armitage", "Fok", email = "quiksilver67213@yahoo.com", role = c("aut", "cre")))
 Description: Provides a fully native R deep learning framework for
     constructing, training, evaluating, and inspecting Deep Dynamic Ensemble
@@ -61,8 +61,8 @@ VignetteBuilder: knitr
 URL: https://github.com/MatHatter/DDESONN
 BugReports: https://github.com/MatHatter/DDESONN/issues
 NeedsCompilation: no
-Packaged: 2026-02-24 15:28:30 UTC; wfky1
+Packaged: 2026-03-09 03:37:07 UTC; wfky1
 Author: Mathew William Armitage Fok [aut, cre]
 Maintainer: Mathew William Armitage Fok <quiksilver67213@yahoo.com>
 Repository: CRAN
-Date/Publication: 2026-03-03 21:10:02 UTC
+Date/Publication: 2026-03-11 13:50:03 UTC

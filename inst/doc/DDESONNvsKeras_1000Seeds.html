@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>DDESONN vs Keras — 1000-Seed Summary — Heart Failure</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">DDESONN vs Keras — 1000-Seed Summary —
+Heart Failure</h1>
+
+
+
+<div id="overview" class="section level2">
+<h2>Overview</h2>
+<p>This vignette summarizes DDESONN results across <strong>1000
+randomized seeds</strong> (two separate 500-seed runs) and compares them
+against a Keras benchmark summary stored in an Excel workbook bundled
+with the package.</p>
+<p>The purpose of this benchmark is not to showcase a single favorable
+run. Instead, it evaluates <strong>distributional behavior across many
+random initializations</strong>, with emphasis on:</p>
+<ul>
+<li>mean performance</li>
+<li>variance and standard deviation</li>
+<li>worst-case behavior</li>
+<li>reproducibility under repeated stress</li>
+</ul>
+<p>In this context, stronger stability across seeds is important because
+it indicates that the training procedure is less sensitive to random
+initialization and therefore more dependable at scale.</p>
+</div>
+<div id="where-the-demo-data-lives" class="section level2">
+<h2>Where the demo data lives</h2>
+<p>The four RDS artifacts included with the package are stored
+under:</p>
+<pre class="text"><code>inst/extdata/heart_failure_runs/
+├─ run1/
+│  ├─ SingleRun_Train_Acc_Val_Metrics_500_seeds_20251025.rds
+│  └─ SingleRun_Test_Metrics_500_seeds_20251025.rds
+└─ run2/
+   ├─ SingleRun_Train_Acc_Val_Metrics_500_seeds_20251026.rds
+   └─ SingleRun_Test_Metrics_500_seeds_20251026.rds</code></pre>
+<p>Each folder represents one 500-seed run performed locally; together
+they form the 1000-seed composite.</p>
+</div>
+<div id="motivation-and-comparison-philosophy" class="section level2">
+<h2>Motivation and comparison philosophy</h2>
+<p>This benchmark addresses a focused research question:</p>
+<blockquote>
+<p>Can a fully R-native, from-first-principles neural network
+implementation achieve competitive statistical stability relative to an
+established deep-learning framework under repeated randomized
+initialization?</p>
+</blockquote>
+<p>The Keras comparison is included as a <strong>reference
+benchmark</strong>, not as an implementation template. DDESONN was built
+independently from scratch and was not derived from Keras source
+code.</p>
+</div>
+<div id="load-ddesonn-runs-and-build-the-summary" class="section level2">
+<h2>Load DDESONN runs and build the summary</h2>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">suppressPackageStartupMessages</span>({</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>  <span class="fu">library</span>(dplyr)</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>  <span class="fu">library</span>(tibble)</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a>  <span class="fu">library</span>(knitr)</span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a>})</span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">requireNamespace</span>(<span class="st">&quot;DDESONN&quot;</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>)) {</span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a>  <span class="fu">message</span>(<span class="st">&quot;DDESONN not installed in this build session; skipping evaluation.&quot;</span>)</span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a>  knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(<span class="at">eval =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>.render_tbl <span class="ot">&lt;-</span> <span class="cf">function</span>(x, <span class="at">title =</span> <span class="cn">NULL</span>, <span class="at">digits =</span> <span class="dv">4</span>) {</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">requireNamespace</span>(<span class="st">&quot;DDESONN&quot;</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>) <span class="sc">&amp;&amp;</span></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>      <span class="fu">exists</span>(<span class="st">&quot;ddesonn_viewTables&quot;</span>, <span class="at">envir =</span> <span class="fu">asNamespace</span>(<span class="st">&quot;DDESONN&quot;</span>), <span class="at">inherits =</span> <span class="cn">FALSE</span>)) {</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>    <span class="fu">get</span>(<span class="st">&quot;ddesonn_viewTables&quot;</span>, <span class="at">envir =</span> <span class="fu">asNamespace</span>(<span class="st">&quot;DDESONN&quot;</span>))(x, <span class="at">title =</span> title)</span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>    <span class="cf">if</span> (<span class="sc">!</span><span class="fu">is.null</span>(title)) <span class="fu">cat</span>(<span class="st">&quot;</span><span class="sc">\n\n</span><span class="st">###&quot;</span>, title, <span class="st">&quot;</span><span class="sc">\n\n</span><span class="st">&quot;</span>)</span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>    knitr<span class="sc">::</span><span class="fu">kable</span>(x, <span class="at">digits =</span> digits, <span class="at">format =</span> <span class="st">&quot;html&quot;</span>)</span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>  }</span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a>}</span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>heart_failure_root <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;extdata&quot;</span>, <span class="st">&quot;heart_failure_runs&quot;</span>, <span class="at">package =</span> <span class="st">&quot;DDESONN&quot;</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">nzchar</span>(heart_failure_root)) {</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>  <span class="co"># Fallback when building from source before installation</span></span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>  heart_failure_root <span class="ot">&lt;-</span> <span class="fu">file.path</span>(<span class="st">&quot;..&quot;</span>, <span class="st">&quot;inst&quot;</span>, <span class="st">&quot;extdata&quot;</span>, <span class="st">&quot;heart_failure_runs&quot;</span>)</span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>}</span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a></span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">dir.exists</span>(heart_failure_root))</span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a>train_run1_path <span class="ot">&lt;-</span> <span class="fu">file.path</span>(</span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a>  heart_failure_root, <span class="st">&quot;run1&quot;</span>,</span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a>  <span class="st">&quot;SingleRun_Train_Acc_Val_Metrics_500_seeds_20251025.rds&quot;</span></span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a>)</span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a>test_run1_path <span class="ot">&lt;-</span> <span class="fu">file.path</span>(</span>
+<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a>  heart_failure_root, <span class="st">&quot;run1&quot;</span>,</span>
+<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a>  <span class="st">&quot;SingleRun_Test_Metrics_500_seeds_20251025.rds&quot;</span></span>
+<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a>)</span>
+<span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a>train_run2_path <span class="ot">&lt;-</span> <span class="fu">file.path</span>(</span>
+<span id="cb4-19"><a href="#cb4-19" tabindex="-1"></a>  heart_failure_root, <span class="st">&quot;run2&quot;</span>,</span>
+<span id="cb4-20"><a href="#cb4-20" tabindex="-1"></a>  <span class="st">&quot;SingleRun_Train_Acc_Val_Metrics_500_seeds_20251026.rds&quot;</span></span>
+<span id="cb4-21"><a href="#cb4-21" tabindex="-1"></a>)</span>
+<span id="cb4-22"><a href="#cb4-22" tabindex="-1"></a>test_run2_path <span class="ot">&lt;-</span> <span class="fu">file.path</span>(</span>
+<span id="cb4-23"><a href="#cb4-23" tabindex="-1"></a>  heart_failure_root, <span class="st">&quot;run2&quot;</span>,</span>
+<span id="cb4-24"><a href="#cb4-24" tabindex="-1"></a>  <span class="st">&quot;SingleRun_Test_Metrics_500_seeds_20251026.rds&quot;</span></span>
+<span id="cb4-25"><a href="#cb4-25" tabindex="-1"></a>)</span>
+<span id="cb4-26"><a href="#cb4-26" tabindex="-1"></a></span>
+<span id="cb4-27"><a href="#cb4-27" tabindex="-1"></a><span class="fu">stopifnot</span>(</span>
+<span id="cb4-28"><a href="#cb4-28" tabindex="-1"></a>  <span class="fu">file.exists</span>(train_run1_path),</span>
+<span id="cb4-29"><a href="#cb4-29" tabindex="-1"></a>  <span class="fu">file.exists</span>(test_run1_path),</span>
+<span id="cb4-30"><a href="#cb4-30" tabindex="-1"></a>  <span class="fu">file.exists</span>(train_run2_path),</span>
+<span id="cb4-31"><a href="#cb4-31" tabindex="-1"></a>  <span class="fu">file.exists</span>(test_run2_path)</span>
+<span id="cb4-32"><a href="#cb4-32" tabindex="-1"></a>)</span>
+<span id="cb4-33"><a href="#cb4-33" tabindex="-1"></a></span>
+<span id="cb4-34"><a href="#cb4-34" tabindex="-1"></a>train_run1 <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(train_run1_path)</span>
+<span id="cb4-35"><a href="#cb4-35" tabindex="-1"></a>test_run1  <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(test_run1_path)</span>
+<span id="cb4-36"><a href="#cb4-36" tabindex="-1"></a>train_run2 <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(train_run2_path)</span>
+<span id="cb4-37"><a href="#cb4-37" tabindex="-1"></a>test_run2  <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(test_run2_path)</span>
+<span id="cb4-38"><a href="#cb4-38" tabindex="-1"></a></span>
+<span id="cb4-39"><a href="#cb4-39" tabindex="-1"></a>train_all <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">bind_rows</span>(train_run1, train_run2)</span>
+<span id="cb4-40"><a href="#cb4-40" tabindex="-1"></a>test_all  <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">bind_rows</span>(test_run1, test_run2)</span>
+<span id="cb4-41"><a href="#cb4-41" tabindex="-1"></a></span>
+<span id="cb4-42"><a href="#cb4-42" tabindex="-1"></a>train_seed <span class="ot">&lt;-</span> train_all <span class="sc">%&gt;%</span></span>
+<span id="cb4-43"><a href="#cb4-43" tabindex="-1"></a>  <span class="fu">group_by</span>(seed) <span class="sc">%&gt;%</span></span>
+<span id="cb4-44"><a href="#cb4-44" tabindex="-1"></a>  <span class="fu">slice_max</span>(<span class="at">order_by =</span> best_val_acc, <span class="at">n =</span> <span class="dv">1</span>, <span class="at">with_ties =</span> <span class="cn">FALSE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb4-45"><a href="#cb4-45" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb4-46"><a href="#cb4-46" tabindex="-1"></a>  <span class="fu">transmute</span>(</span>
+<span id="cb4-47"><a href="#cb4-47" tabindex="-1"></a>    seed,</span>
+<span id="cb4-48"><a href="#cb4-48" tabindex="-1"></a>    <span class="at">train_acc =</span> best_train_acc,</span>
+<span id="cb4-49"><a href="#cb4-49" tabindex="-1"></a>    <span class="at">val_acc   =</span> best_val_acc</span>
+<span id="cb4-50"><a href="#cb4-50" tabindex="-1"></a>  )</span>
+<span id="cb4-51"><a href="#cb4-51" tabindex="-1"></a></span>
+<span id="cb4-52"><a href="#cb4-52" tabindex="-1"></a>test_seed <span class="ot">&lt;-</span> test_all <span class="sc">%&gt;%</span></span>
+<span id="cb4-53"><a href="#cb4-53" tabindex="-1"></a>  <span class="fu">group_by</span>(seed) <span class="sc">%&gt;%</span></span>
+<span id="cb4-54"><a href="#cb4-54" tabindex="-1"></a>  <span class="fu">slice_max</span>(<span class="at">order_by =</span> accuracy, <span class="at">n =</span> <span class="dv">1</span>, <span class="at">with_ties =</span> <span class="cn">FALSE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb4-55"><a href="#cb4-55" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb4-56"><a href="#cb4-56" tabindex="-1"></a>  <span class="fu">transmute</span>(</span>
+<span id="cb4-57"><a href="#cb4-57" tabindex="-1"></a>    seed,</span>
+<span id="cb4-58"><a href="#cb4-58" tabindex="-1"></a>    <span class="at">test_acc =</span> accuracy</span>
+<span id="cb4-59"><a href="#cb4-59" tabindex="-1"></a>  )</span>
+<span id="cb4-60"><a href="#cb4-60" tabindex="-1"></a></span>
+<span id="cb4-61"><a href="#cb4-61" tabindex="-1"></a>merged <span class="ot">&lt;-</span> <span class="fu">inner_join</span>(train_seed, test_seed, <span class="at">by =</span> <span class="st">&quot;seed&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb4-62"><a href="#cb4-62" tabindex="-1"></a>  <span class="fu">arrange</span>(seed)</span>
+<span id="cb4-63"><a href="#cb4-63" tabindex="-1"></a></span>
+<span id="cb4-64"><a href="#cb4-64" tabindex="-1"></a>summarize_column <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<span id="cb4-65"><a href="#cb4-65" tabindex="-1"></a>  pct <span class="ot">&lt;-</span> <span class="cf">function</span>(p) stats<span class="sc">::</span><span class="fu">quantile</span>(x, <span class="at">probs =</span> p, <span class="at">names =</span> <span class="cn">FALSE</span>, <span class="at">type =</span> <span class="dv">7</span>)</span>
+<span id="cb4-66"><a href="#cb4-66" tabindex="-1"></a>  <span class="fu">data.frame</span>(</span>
+<span id="cb4-67"><a href="#cb4-67" tabindex="-1"></a>    <span class="at">count =</span> <span class="fu">length</span>(x),</span>
+<span id="cb4-68"><a href="#cb4-68" tabindex="-1"></a>    <span class="at">mean  =</span> <span class="fu">mean</span>(x),</span>
+<span id="cb4-69"><a href="#cb4-69" tabindex="-1"></a>    <span class="at">std   =</span> <span class="fu">sd</span>(x),</span>
+<span id="cb4-70"><a href="#cb4-70" tabindex="-1"></a>    <span class="at">min   =</span> <span class="fu">min</span>(x),</span>
+<span id="cb4-71"><a href="#cb4-71" tabindex="-1"></a>    <span class="st">`</span><span class="at">25%</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">pct</span>(<span class="fl">0.25</span>),</span>
+<span id="cb4-72"><a href="#cb4-72" tabindex="-1"></a>    <span class="st">`</span><span class="at">50%</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">pct</span>(<span class="fl">0.50</span>),</span>
+<span id="cb4-73"><a href="#cb4-73" tabindex="-1"></a>    <span class="st">`</span><span class="at">75%</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">pct</span>(<span class="fl">0.75</span>),</span>
+<span id="cb4-74"><a href="#cb4-74" tabindex="-1"></a>    <span class="at">max   =</span> <span class="fu">max</span>(x),</span>
+<span id="cb4-75"><a href="#cb4-75" tabindex="-1"></a>    <span class="at">check.names =</span> <span class="cn">FALSE</span></span>
+<span id="cb4-76"><a href="#cb4-76" tabindex="-1"></a>  )</span>
+<span id="cb4-77"><a href="#cb4-77" tabindex="-1"></a>}</span>
+<span id="cb4-78"><a href="#cb4-78" tabindex="-1"></a></span>
+<span id="cb4-79"><a href="#cb4-79" tabindex="-1"></a>summary_train <span class="ot">&lt;-</span> <span class="fu">summarize_column</span>(merged<span class="sc">$</span>train_acc)</span>
+<span id="cb4-80"><a href="#cb4-80" tabindex="-1"></a>summary_val   <span class="ot">&lt;-</span> <span class="fu">summarize_column</span>(merged<span class="sc">$</span>val_acc)</span>
+<span id="cb4-81"><a href="#cb4-81" tabindex="-1"></a>summary_test  <span class="ot">&lt;-</span> <span class="fu">summarize_column</span>(merged<span class="sc">$</span>test_acc)</span>
+<span id="cb4-82"><a href="#cb4-82" tabindex="-1"></a></span>
+<span id="cb4-83"><a href="#cb4-83" tabindex="-1"></a>summary_all <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb4-84"><a href="#cb4-84" tabindex="-1"></a>  <span class="at">stat =</span> <span class="fu">c</span>(<span class="st">&quot;count&quot;</span>,<span class="st">&quot;mean&quot;</span>,<span class="st">&quot;std&quot;</span>,<span class="st">&quot;min&quot;</span>,<span class="st">&quot;25%&quot;</span>,<span class="st">&quot;50%&quot;</span>,<span class="st">&quot;75%&quot;</span>,<span class="st">&quot;max&quot;</span>),</span>
+<span id="cb4-85"><a href="#cb4-85" tabindex="-1"></a>  <span class="at">train_acc =</span> <span class="fu">unlist</span>(summary_train[<span class="dv">1</span>, ]),</span>
+<span id="cb4-86"><a href="#cb4-86" tabindex="-1"></a>  <span class="at">val_acc   =</span> <span class="fu">unlist</span>(summary_val[<span class="dv">1</span>, ]),</span>
+<span id="cb4-87"><a href="#cb4-87" tabindex="-1"></a>  <span class="at">test_acc  =</span> <span class="fu">unlist</span>(summary_test[<span class="dv">1</span>, ]),</span>
+<span id="cb4-88"><a href="#cb4-88" tabindex="-1"></a>  <span class="at">check.names =</span> <span class="cn">FALSE</span></span>
+<span id="cb4-89"><a href="#cb4-89" tabindex="-1"></a>)</span>
+<span id="cb4-90"><a href="#cb4-90" tabindex="-1"></a></span>
+<span id="cb4-91"><a href="#cb4-91" tabindex="-1"></a>round4 <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="cf">if</span> (<span class="fu">is.numeric</span>(x)) <span class="fu">round</span>(x, <span class="dv">4</span>) <span class="cf">else</span> x</span>
+<span id="cb4-92"><a href="#cb4-92" tabindex="-1"></a>pretty_summary <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(<span class="fu">lapply</span>(summary_all, round4))</span>
+<span id="cb4-93"><a href="#cb4-93" tabindex="-1"></a></span>
+<span id="cb4-94"><a href="#cb4-94" tabindex="-1"></a><span class="fu">.render_tbl</span>(</span>
+<span id="cb4-95"><a href="#cb4-95" tabindex="-1"></a>  pretty_summary,</span>
+<span id="cb4-96"><a href="#cb4-96" tabindex="-1"></a>  <span class="at">title =</span> <span class="st">&quot;DDESONN — 1000-seed summary (train/val/test)&quot;</span></span>
+<span id="cb4-97"><a href="#cb4-97" tabindex="-1"></a>)</span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th style="text-align:left;">
+stat
+</th>
+<th style="text-align:right;">
+train_acc
+</th>
+<th style="text-align:right;">
+val_acc
+</th>
+<th style="text-align:right;">
+test_acc
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+count
+</td>
+<td style="text-align:right;">
+1000.0000
+</td>
+<td style="text-align:right;">
+1000.0000
+</td>
+<td style="text-align:right;">
+1000.0000
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+mean
+</td>
+<td style="text-align:right;">
+0.9928
+</td>
+<td style="text-align:right;">
+0.9992
+</td>
+<td style="text-align:right;">
+0.9992
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+std
+</td>
+<td style="text-align:right;">
+0.0014
+</td>
+<td style="text-align:right;">
+0.0013
+</td>
+<td style="text-align:right;">
+0.0013
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+min
+</td>
+<td style="text-align:right;">
+0.9854
+</td>
+<td style="text-align:right;">
+0.9893
+</td>
+<td style="text-align:right;">
+0.9920
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+25%
+</td>
+<td style="text-align:right;">
+0.9920
+</td>
+<td style="text-align:right;">
+0.9987
+</td>
+<td style="text-align:right;">
+0.9987
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+50%
+</td>
+<td style="text-align:right;">
+0.9929
+</td>
+<td style="text-align:right;">
+1.0000
+</td>
+<td style="text-align:right;">
+1.0000
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+75%
+</td>
+<td style="text-align:right;">
+0.9937
+</td>
+<td style="text-align:right;">
+1.0000
+</td>
+<td style="text-align:right;">
+1.0000
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+max
+</td>
+<td style="text-align:right;">
+0.9963
+</td>
+<td style="text-align:right;">
+1.0000
+</td>
+<td style="text-align:right;">
+1.0000
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="keras-parity-excel-sheet-2" class="section level2">
+<h2>Keras parity (Excel, Sheet 2)</h2>
+<p>Keras parity results are stored in an Excel workbook included with
+the package under:</p>
+<pre class="text"><code>inst/scripts/vsKeras/1000SEEDSRESULTSvsKeras/1000seedsKeras.xlsx</code></pre>
+<p>The file is accessed programmatically using
+<code>system.file()</code> so the path remains CRAN-safe and
+cross-platform.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">requireNamespace</span>(<span class="st">&quot;readxl&quot;</span>, <span class="at">quietly =</span> <span class="cn">TRUE</span>)) {</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>  <span class="fu">message</span>(<span class="st">&quot;Skipping keras-summary chunk: &#39;readxl&#39; not installed.&quot;</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>} <span class="cf">else</span> {</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>  keras_path <span class="ot">&lt;-</span> <span class="fu">system.file</span>(</span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>    <span class="st">&quot;scripts&quot;</span>, <span class="st">&quot;vsKeras&quot;</span>, <span class="st">&quot;1000SEEDSRESULTSvsKeras&quot;</span>, <span class="st">&quot;1000seedsKeras.xlsx&quot;</span>,</span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>    <span class="at">package =</span> <span class="st">&quot;DDESONN&quot;</span></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a>  )</span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a></span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a>  <span class="cf">if</span> (<span class="fu">nzchar</span>(keras_path) <span class="sc">&amp;&amp;</span> <span class="fu">file.exists</span>(keras_path)) {</span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a>    keras_stats <span class="ot">&lt;-</span> readxl<span class="sc">::</span><span class="fu">read_excel</span>(keras_path, <span class="at">sheet =</span> <span class="dv">2</span>)</span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a>    <span class="fu">.render_tbl</span>(</span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a>      keras_stats,</span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a>      <span class="at">title =</span> <span class="st">&quot;Keras — 1000-seed summary (Sheet 2)&quot;</span></span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a>    )</span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a>    <span class="fu">cat</span>(<span class="st">&quot;Keras Excel not found in installed package.</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a>  }</span>
+<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a>}</span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th style="text-align:left;">
+stat
+</th>
+<th style="text-align:right;">
+seed
+</th>
+<th style="text-align:right;">
+train_loss
+</th>
+<th style="text-align:right;">
+train_acc
+</th>
+<th style="text-align:right;">
+val_loss
+</th>
+<th style="text-align:right;">
+val_acc
+</th>
+<th style="text-align:right;">
+val_auc
+</th>
+<th style="text-align:right;">
+val_auprc
+</th>
+<th style="text-align:right;">
+test_loss
+</th>
+<th style="text-align:right;">
+test_acc
+</th>
+<th style="text-align:right;">
+test_auc
+</th>
+<th style="text-align:right;">
+test_auprc
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+count
+</td>
+<td style="text-align:right;">
+1000.0000
+</td>
+<td style="text-align:right;">
+1000.0000000
+</td>
+<td style="text-align:right;">
+1000.0000000
+</td>
+<td style="text-align:right;">
+1000.0000000
+</td>
+<td style="text-align:right;">
+1000.0000000
+</td>
+<td style="text-align:right;">
+1000.0000000
+</td>
+<td style="text-align:right;">
+1.00000e+03
+</td>
+<td style="text-align:right;">
+1000.0000000
+</td>
+<td style="text-align:right;">
+1000.0000000
+</td>
+<td style="text-align:right;">
+1000.0000000
+</td>
+<td style="text-align:right;">
+1000.0000000
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+mean
+</td>
+<td style="text-align:right;">
+500.0999
+</td>
+<td style="text-align:right;">
+0.1285539
+</td>
+<td style="text-align:right;">
+0.9853164
+</td>
+<td style="text-align:right;">
+0.0923288
+</td>
+<td style="text-align:right;">
+0.9943097
+</td>
+<td style="text-align:right;">
+0.9981954
+</td>
+<td style="text-align:right;">
+9.97682e-01
+</td>
+<td style="text-align:right;">
+0.0801902
+</td>
+<td style="text-align:right;">
+0.9968086
+</td>
+<td style="text-align:right;">
+0.9992427
+</td>
+<td style="text-align:right;">
+0.9989122
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+std
+</td>
+<td style="text-align:right;">
+288.9524
+</td>
+<td style="text-align:right;">
+0.2685126
+</td>
+<td style="text-align:right;">
+0.0031003
+</td>
+<td style="text-align:right;">
+0.1312915
+</td>
+<td style="text-align:right;">
+0.0048215
+</td>
+<td style="text-align:right;">
+0.0046459
+</td>
+<td style="text-align:right;">
+6.14290e-03
+</td>
+<td style="text-align:right;">
+0.1931197
+</td>
+<td style="text-align:right;">
+0.0035695
+</td>
+<td style="text-align:right;">
+0.0031493
+</td>
+<td style="text-align:right;">
+0.0052804
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+min
+</td>
+<td style="text-align:right;">
+1.0000
+</td>
+<td style="text-align:right;">
+0.0810060
+</td>
+<td style="text-align:right;">
+0.9705710
+</td>
+<td style="text-align:right;">
+0.0511130
+</td>
+<td style="text-align:right;">
+0.9653330
+</td>
+<td style="text-align:right;">
+0.9612140
+</td>
+<td style="text-align:right;">
+9.03136e-01
+</td>
+<td style="text-align:right;">
+0.0498250
+</td>
+<td style="text-align:right;">
+0.9786670
+</td>
+<td style="text-align:right;">
+0.9691980
+</td>
+<td style="text-align:right;">
+0.8900960
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+25%
+</td>
+<td style="text-align:right;">
+250.0000
+</td>
+<td style="text-align:right;">
+0.0951690
+</td>
+<td style="text-align:right;">
+0.9837140
+</td>
+<td style="text-align:right;">
+0.0653810
+</td>
+<td style="text-align:right;">
+0.9920000
+</td>
+<td style="text-align:right;">
+0.9989820
+</td>
+<td style="text-align:right;">
+9.98331e-01
+</td>
+<td style="text-align:right;">
+0.0591380
+</td>
+<td style="text-align:right;">
+0.9946670
+</td>
+<td style="text-align:right;">
+0.9999330
+</td>
+<td style="text-align:right;">
+0.9998530
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+50%
+</td>
+<td style="text-align:right;">
+500.0000
+</td>
+<td style="text-align:right;">
+0.1022350
+</td>
+<td style="text-align:right;">
+0.9857140
+</td>
+<td style="text-align:right;">
+0.0709260
+</td>
+<td style="text-align:right;">
+0.9960000
+</td>
+<td style="text-align:right;">
+0.9997410
+</td>
+<td style="text-align:right;">
+9.99473e-01
+</td>
+<td style="text-align:right;">
+0.0629980
+</td>
+<td style="text-align:right;">
+0.9973330
+</td>
+<td style="text-align:right;">
+1.0000000
+</td>
+<td style="text-align:right;">
+1.0000000
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+75%
+</td>
+<td style="text-align:right;">
+750.0000
+</td>
+<td style="text-align:right;">
+0.1121150
+</td>
+<td style="text-align:right;">
+0.9874290
+</td>
+<td style="text-align:right;">
+0.0812150
+</td>
+<td style="text-align:right;">
+0.9986670
+</td>
+<td style="text-align:right;">
+0.9999420
+</td>
+<td style="text-align:right;">
+9.99873e-01
+</td>
+<td style="text-align:right;">
+0.0697250
+</td>
+<td style="text-align:right;">
+1.0000000
+</td>
+<td style="text-align:right;">
+1.0000000
+</td>
+<td style="text-align:right;">
+1.0000000
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+max
+</td>
+<td style="text-align:right;">
+1000.0000
+</td>
+<td style="text-align:right;">
+6.0387850
+</td>
+<td style="text-align:right;">
+0.9925710
+</td>
+<td style="text-align:right;">
+2.1582980
+</td>
+<td style="text-align:right;">
+1.0000000
+</td>
+<td style="text-align:right;">
+1.0000000
+</td>
+<td style="text-align:right;">
+1.00000e+00
+</td>
+<td style="text-align:right;">
+5.5763540
+</td>
+<td style="text-align:right;">
+1.0000000
+</td>
+<td style="text-align:right;">
+1.0000000
+</td>
+<td style="text-align:right;">
+1.0000000
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="benchmark-results-across-1000-seeds" class="section level2">
+<h2>🔬 Benchmark results across 1000 seeds</h2>
+<p>Across <strong>1000 random neural network initializations</strong>,
+DDESONN demonstrated stronger stability than the Keras benchmark model
+on this heart-failure task.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>benchmark_results <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>  <span class="at">Metric =</span> <span class="fu">c</span>(</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>    <span class="st">&quot;Mean Test Accuracy&quot;</span>,</span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>    <span class="st">&quot;Standard Deviation&quot;</span>,</span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>    <span class="st">&quot;Minimum Test Accuracy&quot;</span>,</span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>    <span class="st">&quot;Maximum Test Accuracy&quot;</span></span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>  ),</span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>  <span class="at">DDESONN =</span> <span class="fu">c</span>(<span class="st">&quot;≈ 99.92%&quot;</span>, <span class="st">&quot;≈ 0.0013&quot;</span>, <span class="st">&quot;≈ 99.20%&quot;</span>, <span class="st">&quot;100%&quot;</span>),</span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a>  <span class="at">Keras   =</span> <span class="fu">c</span>(<span class="st">&quot;≈ 99.69%&quot;</span>, <span class="st">&quot;≈ 0.0036&quot;</span>, <span class="st">&quot;≈ 97.82%&quot;</span>, <span class="st">&quot;100%&quot;</span>),</span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a>  <span class="at">check.names =</span> <span class="cn">FALSE</span></span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a>)</span>
+<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a></span>
+<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a><span class="fu">.render_tbl</span>(</span>
+<span id="cb7-14"><a href="#cb7-14" tabindex="-1"></a>  benchmark_results,</span>
+<span id="cb7-15"><a href="#cb7-15" tabindex="-1"></a>  <span class="at">title =</span> <span class="st">&quot;Benchmark results across 1000 seeds&quot;</span></span>
+<span id="cb7-16"><a href="#cb7-16" tabindex="-1"></a>)</span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th style="text-align:left;">
+Metric
+</th>
+<th style="text-align:left;">
+DDESONN
+</th>
+<th style="text-align:left;">
+Keras
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Mean Test Accuracy
+</td>
+<td style="text-align:left;">
+≈ 99.92%
+</td>
+<td style="text-align:left;">
+≈ 99.69%
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Standard Deviation
+</td>
+<td style="text-align:left;">
+≈ 0.0013
+</td>
+<td style="text-align:left;">
+≈ 0.0036
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Minimum Test Accuracy
+</td>
+<td style="text-align:left;">
+≈ 99.20%
+</td>
+<td style="text-align:left;">
+≈ 97.82%
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Maximum Test Accuracy
+</td>
+<td style="text-align:left;">
+100%
+</td>
+<td style="text-align:left;">
+100%
+</td>
+</tr>
+</tbody>
+</table>
+<p>These results suggest that DDESONN achieved:</p>
+<ul>
+<li><strong>higher average test accuracy</strong></li>
+<li><strong>materially lower variance across seeds</strong></li>
+<li><strong>stronger minimum-case performance</strong></li>
+<li><strong>equal best-case ceiling performance</strong></li>
+</ul>
+<p>This is important because lower variance implies the model is less
+sensitive to randomized initialization and more dependable across
+repeated training runs.</p>
+</div>
+<div id="why-this-matters-for-large-scale-projects" class="section level2">
+<h2>Why this matters for large-scale projects</h2>
+<div id="enterprise-machine-learning-pipelines" class="section level3">
+<h3>Enterprise machine learning pipelines</h3>
+<p>In large corporate environments, teams may train hundreds or
+thousands of models across changing datasets, validation windows, and
+deployment cycles. A lower-variance model reduces the need for repeated
+retraining simply to obtain a “good seed,” which lowers compute cost and
+improves operational predictability.</p>
+</div>
+<div id="trading-and-financial-systems" class="section level3">
+<h3>Trading and financial systems</h3>
+<p>In trading, portfolio analytics, execution modeling, or risk
+forecasting, model instability can create inconsistent outputs across
+retrains. A model that is more stable across seeds can improve
+confidence in:</p>
+<ul>
+<li>signal consistency,</li>
+<li>scenario analysis,</li>
+<li>risk control calibration,</li>
+<li>production retraining pipelines.</li>
+</ul>
+<p>This does not guarantee trading profitability, but it does support
+stronger engineering reliability and more reproducible model
+behavior.</p>
+</div>
+<div id="healthcare-and-regulated-environments" class="section level3">
+<h3>Healthcare and regulated environments</h3>
+<p>In healthcare and other regulated domains, reproducibility matters
+because stakeholders need confidence that retraining the same workflow
+will not produce materially unstable outcomes. Lower dispersion across
+seeds can help support validation, governance, and auditability.</p>
+</div>
+<div id="aerospace-and-autonomous-systems" class="section level3">
+<h3>Aerospace and autonomous systems</h3>
+<p>In mission-critical environments such as autonomous control or
+space-related analytics, reproducibility and reliability are essential.
+More stable training behavior can be valuable when models need to be
+trusted under constrained or high-stakes deployment settings.</p>
+</div>
+</div>
+<div id="reproducibility-notes" class="section level2">
+<h2>Reproducibility notes</h2>
+<p>These results aggregate <strong>two independent 500-seed
+runs</strong> performed locally.</p>
+<p>A master seed was <strong>not</strong> set for those original runs.
+Since then:</p>
+<ul>
+<li>DDESONN benchmarking has been updated to use a master seed in
+<code>TestDDESONN_1000seeds.R</code></li>
+<li>Keras parity benchmarking has been updated to use a synchronized
+master seed in <code>TestKeras_1000seeds.py</code></li>
+</ul>
+<p>Keras raw and summary outputs are compiled in:</p>
+<pre class="text"><code>inst/scripts/vsKeras/1000SEEDSRESULTSvsKeras/1000seedsKeras.xlsx</code></pre>
+</div>
+<div id="distributed-execution-scaling-note" class="section level2">
+<h2>Distributed execution (scaling note)</h2>
+<p>The results shown here were computed locally.</p>
+<p>For large-scale experiments involving hundreds or thousands of seeds,
+DDESONN can be executed in distributed environments to reduce wall-clock
+time significantly. Distributed orchestration and development-stage
+scaling scripts are maintained in the GitHub repository and are
+intentionally excluded from the CRAN package so this vignette remains
+focused on validated results and benchmark methodology.</p>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
